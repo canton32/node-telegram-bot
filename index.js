@@ -106,6 +106,32 @@ telegram.on("callback_query", (callbackQuery) => {
   );
 });
 
+// Keyboard layout for requesting phone number access
+const requestPhoneKeyboard = {
+  reply_markup: {
+    one_time_keyboard: true,
+    keyboard: [
+      [
+        {
+          text: "My phone number",
+          request_contact: true,
+          one_time_keyboard: true,
+        },
+      ],
+      ["Cancel"],
+    ],
+  },
+};
+
+// Listener (handler) for retrieving phone number
+telegram.onText(/\/phone/, (msg) => {
+  telegram.sendMessage(
+    msg.chat.id,
+    "Can we get access to your phone number?",
+    requestPhoneKeyboard
+  );
+});
+
 telegram.on("inline_query", (query) => {
   telegram.answerInlineQuery(query.id, [
     {
