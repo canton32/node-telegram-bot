@@ -27,6 +27,24 @@ telegram.on("text", (message) => {
   }
 });
 
+const URLs = [];
+// Listener (handler) for telegram's /bookmark event
+telegram.onText(/\/bookmark/, (msg, match) => {
+  const chatId = msg.chat.id;
+  const url = match.input.split(" ")[1];
+  // 'msg' is the received Message from Telegram
+  // 'match' is the result of executing the regexp above on the text content
+  // of the message
+
+  if (url === undefined) {
+    telegram.sendMessage(chatId, "Please provide URL of article!");
+    return;
+  }
+
+  URLs.push(url);
+  telegram.sendMessage(chatId, "URL has been successfully saved!");
+});
+
 telegram.on("inline_query", (query) => {
   telegram.answerInlineQuery(query.id, [
     {
