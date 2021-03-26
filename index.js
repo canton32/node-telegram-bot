@@ -61,11 +61,11 @@ telegram.onText(/\/label/, (msg, match) => {
   const url = match.input.split(" ")[1];
 
   if (url === undefined) {
-    bot.sendMessage(chatId, "Please provide URL of article!");
+    telegram.sendMessage(chatId, "Please provide URL of article!");
     return;
   }
 
-  const tempSiteURL = url;
+  tempSiteURL = url;
   telegram.sendMessage(chatId, "URL has been successfully saved!", {
     reply_markup: {
       inline_keyboard: [
@@ -86,6 +86,24 @@ telegram.onText(/\/label/, (msg, match) => {
       ],
     },
   });
+});
+
+const URLLabels = [];
+telegram.on("callback_query", (callbackQuery) => {
+  const message = callbackQuery.message;
+  const category = callbackQuery.data;
+
+  URLLabels.push({
+    url: tempSiteURL,
+    label: category,
+  });
+
+  tempSiteURL = "";
+
+  telegram.sendMessage(
+    message.chat.id,
+    `URL has been labeled with category "${category}"`
+  );
 });
 
 telegram.on("inline_query", (query) => {
