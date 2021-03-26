@@ -18,7 +18,10 @@ telegram.on("text", (message) => {
       var endsAt = moment(codedayEvent.ends_at * 1000);
       telegram.sendMessage(
         message.chat.id,
-        "CodeDay ends " + endsAt.fromNow() + "!"
+        "CodeDay ends *" + endsAt.fromNow() + "*!",
+        {
+          parse_mode: "Markdown",
+        }
       );
     });
   }
