@@ -56,6 +56,38 @@ telegram.onText(/\/keyboard/, (msg) => {
   });
 });
 
+telegram.onText(/\/label/, (msg, match) => {
+  const chatId = msg.chat.id;
+  const url = match.input.split(" ")[1];
+
+  if (url === undefined) {
+    bot.sendMessage(chatId, "Please provide URL of article!");
+    return;
+  }
+
+  const tempSiteURL = url;
+  telegram.sendMessage(chatId, "URL has been successfully saved!", {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: "Development",
+            callback_data: "development",
+          },
+          {
+            text: "Lifestyle",
+            callback_data: "lifestyle",
+          },
+          {
+            text: "Other",
+            callback_data: "other",
+          },
+        ],
+      ],
+    },
+  });
+});
+
 telegram.on("inline_query", (query) => {
   telegram.answerInlineQuery(query.id, [
     {
