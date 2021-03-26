@@ -26,3 +26,17 @@ telegram.on("text", (message) => {
     });
   }
 });
+
+telegram.on("inline_query", (query) => {
+  telegram.answerInlineQuery(query.id, [
+    {
+      type: "article",
+      id: "testarticle",
+      title: "Hello world",
+      input_message_content: {
+        message_text:
+          "Hello, world! This was sent from my super cool inline bot.",
+      },
+    },
+  ]);
+});
