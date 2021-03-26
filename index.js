@@ -45,6 +45,17 @@ telegram.onText(/\/bookmark/, (msg, match) => {
   telegram.sendMessage(chatId, "URL has been successfully saved!");
 });
 
+telegram.onText(/\/keyboard/, (msg) => {
+  telegram.sendMessage(msg.chat.id, "Alternative keyboard layout", {
+    reply_markup: {
+      keyboard: [["Sample text", "Second sample"], ["Keyboard"], ["I'm robot"]],
+      resize_keyboard: true,
+      one_time_keyboard: true,
+      force_reply: true,
+    },
+  });
+});
+
 telegram.on("inline_query", (query) => {
   telegram.answerInlineQuery(query.id, [
     {
