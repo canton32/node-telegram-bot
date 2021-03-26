@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/canton32/node-telegram-bot#readme",
   "dependencies": {
+    "codeday-clear": "^1.1.4",
     "dotenv": "^8.2.0",
+    "moment": "^2.29.1",
     "node-telegram-bot-api": "^0.51.0"
   }
 }
