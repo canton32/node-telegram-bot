@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/canton32/node-telegram-bot/issues"
   },
-  "homepage": "https://github.com/canton32/node-telegram-bot#readme"
+  "homepage": "https://github.com/canton32/node-telegram-bot#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "node-telegram-bot-api": "^0.51.0"
+  }
 }
