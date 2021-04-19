@@ -13,6 +13,7 @@ const clear = new Clear(
 );
 
 telegram.on("text", (message) => {
+  console.log(message);
   if (message.text.toLowerCase().indexOf("/codeday") === 0) {
     clear.getEventById("oo4QIuKQQTYA", (codedayEvent) => {
       var endsAt = moment(codedayEvent.ends_at * 1000);

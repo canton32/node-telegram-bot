@@ -20,6 +20,7 @@
     "codeday-clear": "^1.1.4",
     "dotenv": "^8.2.0",
     "moment": "^2.29.1",
-    "node-telegram-bot-api": "^0.51.0"
+    "node-telegram-bot-api": "^0.51.0",
+    "tdlnode": "^1.2.0"
   }
 }
