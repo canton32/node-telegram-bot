@@ -1,16 +1,14 @@
 const path = require('path')
 const { Client } = require('tdlnode')
+const getBinaryPath = require('tdl-binary')
 
 const api_id = '3573285'
 const api_hash = '0be177e6596ecb54ec01b3b54a8b5c99'
 const token = process.env.TELEGRAM_BOT_TOKEN
 const configuration = {
-    path_to_binary_file: path.resolve(__dirname, '../tdlib/lib/libtdjson'),
-    database_directory: path.resolve(__dirname, '../tdlib/storage'),
-    files_directory: path.resolve(__dirname, '../tdlib/downloads'),
-    log_file_path: path.resolve(__dirname, '../tdlib/logs/tdl.log'),
+    path_to_binary_file: getBinaryPath(),
 }
-
+const phone_number = '+13234127641'
 // const api_id = '3262137'
 // const api_hash = 'fd456064202c672d2dd66a51a484e98a'
 // const token = '1748350820:AAGtg56EH-cetNaR7J-tZiY1xADKkAShn7c'
@@ -23,7 +21,7 @@ const configuration = {
 
 const up = async () => {
     try {
-        const client = new Client({ api_id, api_hash, token }, configuration);
+        const client = new Client({ api_id, api_hash, phone_number }, configuration);
 
         // client.on('updateSupergroup', update => {
         //     console.log(update)
