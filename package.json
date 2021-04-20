@@ -21,7 +21,10 @@
     "dotenv": "^8.2.0",
     "moment": "^2.29.1",
     "node-telegram-bot-api": "^0.51.0",
+    "tdl": "^7.0.0",
     "tdl-binary": "git+https://github.com/MoonwalkInc/tdl-binary.git",
+    "tdl-tdlib-addon": "^1.0.1",
+    "tdl-tdlib-ffi": "^3.0.0",
     "tdlnode": "^1.2.0"
   }
 }
