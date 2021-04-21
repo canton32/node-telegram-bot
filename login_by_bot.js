@@ -30,8 +30,8 @@ const tdlib = new TDLib(getBinPath())
 const BotClient = new Client(tdlib, {
   apiId: API_ID,
   apiHash: API_HASH,
-  databaseDirectory: '/api_bot/_td_database',
-  filesDirectory: '/api_bot/_td_files'
+  databaseDirectory: '/tmp/api_bot/_td_database',
+  filesDirectory: '/tmp/api_bot/_td_files'
 })
 
 var BotId;
