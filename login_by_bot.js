@@ -30,50 +30,55 @@ const tdlib = new TDLib(getBinPath())
 const BotClient = new Client(tdlib, {
   apiId: API_ID,
   apiHash: API_HASH,
-  databaseDirectory: 'api_bot/_td_database',
-  filesDirectory: 'api_bot/_td_files'
+  databaseDirectory: '/usr/api_bot/_td_database',
+  filesDirectory: '/usr/api_bot/_td_files'
 })
 
 var BotId;
-BotClient.connect()
-BotClient.login(() => API_BOT_AUTH)
-BotClient.on('error', e => myError('Bot error', e))
-BotClient.on('update', u => {
-  // console.log(u);
-  if (u['_'] == 'updateNewMessage'
-    && u.message
-    && u.message.sender.user_id != BotId
-    && u.message.content
-    && u.message.content.text
-    && u.message.content.text.text) {
-    var txt = u.message.content.text.text;
-    var user_id = u.message.sender.user_id;
-    console.log('New message from bot:', txt);
+try {
 
-    if (txt == '/start') {
-      if (!UserClientstarted) {
-        startUserClient(u.message.chat_id);
-        UserClientstarted = true;
-        console.log('User started');
+  BotClient.connect()
+  BotClient.login(() => API_BOT_AUTH)
+  BotClient.on('error', e => myError('Bot error', e))
+  BotClient.on('update', u => {
+    // console.log(u);
+    if (u['_'] == 'updateNewMessage'
+      && u.message
+      && u.message.sender.user_id != BotId
+      && u.message.content
+      && u.message.content.text
+      && u.message.content.text.text) {
+      var txt = u.message.content.text.text;
+      var user_id = u.message.sender.user_id;
+      console.log('New message from bot:', txt);
+
+      if (txt == '/start') {
+        if (!UserClientstarted) {
+          startUserClient(u.message.chat_id);
+          UserClientstarted = true;
+          console.log('User started');
+        }
+      }
+
+      if (txt && txt.indexOf('/send') >= 0) {
+        txt = txt.split(' c')[1];
+        console.log("Authorizing:", txt, user_id);
+        recivedAuthFromUser(txt, user_id);
       }
     }
-
-    if (txt && txt.indexOf('/send') >= 0) {
-      txt = txt.split(' c')[1];
-      console.log("Authorizing:", txt, user_id);
-      recivedAuthFromUser(txt, user_id);
+    else if (u['_'] == 'updateOption'
+      && u.name == 'my_id'
+      && u.value
+      && u.value['_'] == 'optionValueInteger'
+      && u.value.value) {
+      BotId = u.value.value;
+      console.log('Bot message:', u);
+      console.log('Bot Id', BotId);
     }
-  }
-  else if (u['_'] == 'updateOption'
-    && u.name == 'my_id'
-    && u.value
-    && u.value['_'] == 'optionValueInteger'
-    && u.value.value) {
-    BotId = u.value.value;
-    console.log('Bot message:', u);
-    console.log('Bot Id', BotId);
-  }
-})
+  })
+} catch (error) {
+  console.log(error);
+}
 
 function botSendMessage(text, user_id) {
   console.log('Sending from bot', text);
@@ -189,7 +194,13 @@ function UserClientAsyncInvode(objTemp) {
   return new Promise(function (res, rej) {
     async function AsyncInvode(objTemp) {
       console.log('User async invoking', objTemp);
-      res(await UserClient.invoke(objTemp));
+      try {
+        const result = await UserClient.invoke(objTemp);
+        res(result);
+      } catch (error) {
+
+      }
+
     }
     AsyncInvode(objTemp);
   })

@@ -30,6 +30,6 @@
     "tdl-binary": "git+https://github.com/MoonwalkInc/tdl-binary.git",
     "tdl-tdlib-addon": "^1.0.1",
     "tdl-tdlib-ffi": "^3.0.0",
-    "tdlnode": "^1.2.0"
+    "tdlib-types": "^0.1001007.1"
   }
 }
