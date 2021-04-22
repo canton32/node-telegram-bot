@@ -16,7 +16,7 @@ const showSommeryLogs = true;
 var authState = {};
 // authState[user_id] = 'waitPhoneNumber'
 // authState[user_id] = 'waitAuthCode'
-// authState[user_id] = 'waitAuthPass'
+// authState[user_id] =  'waitAuthPass'
 
 const API_BOT_AUTH = {
   type: 'bot',
