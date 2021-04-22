@@ -6,17 +6,43 @@
 *
 */
 
+const getBinPath = require('tdl-binary');
+/*
+* TDLib (Telegram Database library) authentication example
+* with Node.js by [tdl](https://github.com/Bannerets/tdl) pakage.
+*
+* by mortezaataiy
+*
+*/
+
 const { Client } = require('tdl')
 const { TDLib } = require('tdl-tdlib-ffi')
 const { API_ID, API_HASH, BOT_TOKEN } = require('./config.js');
-const getBinPath = require('tdl-binary');
 
 const myDebug = false; // if you want to see logs change this to true
 const showSommeryLogs = true;
+function myLog(msg, msg2) {
+  if (myDebug) {
+    console.log('-----------------');
+    console.log(msg, msg2);
+  }
+}
+function sommeryLogs(msg, msg2) {
+  if (showSommeryLogs) {
+    console.log('-----------------');
+    console.log(msg, msg2);
+  }
+}
+function myError(msg, msg2) {
+  if (myDebug) {
+    console.log('=================');
+    console.error(msg, msg2);
+  }
+}
 var authState = {};
 // authState[user_id] = 'waitPhoneNumber'
 // authState[user_id] = 'waitAuthCode'
-// authState[user_id] =  'waitAuthPass'
+// authState[user_id] = 'waitAuthPass'
 
 const API_BOT_AUTH = {
   type: 'bot',
@@ -30,58 +56,49 @@ const tdlib = new TDLib(getBinPath())
 const BotClient = new Client(tdlib, {
   apiId: API_ID,
   apiHash: API_HASH,
-  databaseDirectory: '/app/tddb/client/database',
-  filesDirectory: '/app/tddb/client/files'
+  databaseDirectory: 'api_bot/_td_database',
+  filesDirectory: 'api_bot/_td_files'
 })
-
 var BotId;
-try {
-
-  BotClient.connect()
-  BotClient.login(() => API_BOT_AUTH)
-  BotClient.on('error', e => myError('Bot error', e))
-  BotClient.on('update', u => {
-    // console.log(u);
-    if (u['_'] == 'updateNewMessage'
-      && u.message
-      && u.message.sender.user_id != BotId
-      && u.message.content
-      && u.message.content.text
-      && u.message.content.text.text) {
-      var txt = u.message.content.text.text;
-      var user_id = u.message.sender.user_id;
-      console.log('New message from bot:', txt);
-
-      if (txt == '/start') {
-        if (!UserClientstarted) {
-          startUserClient(u.message.chat_id);
-          UserClientstarted = true;
-          console.log('User started');
-        }
-      }
-
-      if (txt && txt.indexOf('/send') >= 0) {
-        txt = txt.split(' c')[1];
-        console.log("Authorizing:", txt, user_id);
-        recivedAuthFromUser(txt, user_id);
+BotClient.connect()
+BotClient.login(() => API_BOT_AUTH)
+BotClient.on('error', e => myError('Bot error', e))
+BotClient.on('update', u => {
+  if (u['_'] == 'updateNewMessage'
+    && u.message
+    && u.message.sender.user_id != BotId
+    && u.message.content
+    && u.message.content.text
+    && u.message.content.text.text) {
+    var txt = u.message.content.text.text;
+    var user_id = u.message.sender.user_id;
+    sommeryLogs('recived from api bot:', txt)
+    if (txt == '/start') {
+      if (!UserClientstarted) {
+        startUserClient(u.message.chat_id);
+        UserClientstarted = true;
+        myLog('#######UserClientstart ')
       }
     }
-    else if (u['_'] == 'updateOption'
-      && u.name == 'my_id'
-      && u.value
-      && u.value['_'] == 'optionValueInteger'
-      && u.value.value) {
-      BotId = u.value.value;
-      console.log('Bot message:', u);
-      console.log('Bot Id', BotId);
+    if (txt && txt.indexOf('/send') >= 0) {
+      txt = txt.split(' c')[1];
+      recivedAuthFromUser(txt, user_id);
     }
-  })
-} catch (error) {
-  console.log(error);
-}
-
+  }
+  else if (u['_'] == 'updateOption'
+    && u.name == 'my_id'
+    && u.value
+    && u.value['_'] == 'optionValueInteger'
+    && u.value.value) {
+    BotId = u.value.value;
+    myLog('BotId', BotId);
+  }
+  //else
+  myLog('Bot update', u)
+})
+sommeryLogs('api bot started. send /start in bot')
 function botSendMessage(text, user_id) {
-  console.log('Sending from bot', text);
+  sommeryLogs('send with api bot:', text)
   BotClient.invoke({
     '_': "sendMessage",
     chat_id: user_id,
@@ -95,9 +112,9 @@ function botSendMessage(text, user_id) {
     }
   })
     .then(o => {
-      console.log('Sent from bot', text);
+      myLog('From then:', o);
     })
-    .catch(e => console.log('Bot sent error:', e));
+    .catch(e => myError(e));
 }
 
 // UserClient:
@@ -106,40 +123,37 @@ var UserId = 0;
 const UserClient = new Client(tdlib, {
   apiId: API_ID,
   apiHash: API_HASH,
-  databaseDirectory: '/app/tddb/bot/database',
-  filesDirectory: '/app/tddb/bot/files'
+  databaseDirectory: 'user/_td_database',
+  filesDirectory: 'user/_td_files',
 })
-
 function startUserClient(user_id) { // user_id is user that start api bot
-  console.log('Staring user:', user_id);
-
-  UserClient.on('error', e => console.log('User error:', e));
+  sommeryLogs('UserClient start');
+  UserClient.on('error', e => myError('UserClient error', e))
   UserClient.on('update', u => {
     if (u['_'] == 'updateAuthorizationState') {
       if (u.authorization_state['_'] == 'authorizationStateWaitPhoneNumber') {
-        console.log('Waiting phone number', user_id);
+        myLog('####### my waitPhoneNumber', user_id);
         authState[user_id] = "waitPhoneNumber";
         var txt = "plz send phone number like this:\n/send c+123456789012\n(char 'c' need!)";
         getAuthFromUser(authState[user_id], txt, user_id);
         return;
       }
       else if (u.authorization_state['_'] == 'authorizationStateWaitCode') {
-        console.log('Waiting auth code:', user_id);
+        myLog('####### my waitAuthCode', user_id);
         authState[user_id] = "waitAuthCode";
         var txt = "plz send code like this:\n/send c12345\n(char 'c' need!)\n(if send code without a char with telegram the code has expired!)";
         getAuthFromUser(authState[user_id], txt, user_id);
         return;
       }
       else if (u.authorization_state['_'] == 'authorizationStateWaitPassword') {
-        console.log('Auth passed:', user_id);
+        myLog('####### my waitAuthPass', user_id);
         authState[user_id] = "waitAuthPass";
         var txt = "plz send password like this:\n/send c12345\n(char 'c' need!)";
         getAuthFromUser(authState[user_id], txt, user_id);
         return;
       }
       else if (u.authorization_state['_'] == 'authorizationStateReady') {
-        console.log('User ready');
-
+        myLog('####### my authorizationStateReady %%%%%%%%%% :))))) ');
         authState[user_id] = "Ready";
         var txt = "now you can send ping in private.";
         botSendMessage(authState[user_id] + ", " + txt, user_id);
@@ -149,7 +163,7 @@ function startUserClient(user_id) { // user_id is user that start api bot
 
         UserClientAsyncInvode(objTemp)
           .then(result => {
-            console.log('Invoking get me', result);
+            myLog('####### my GetMe $ output:', result);
             UserId = result.id;
           })
           .catch(e => myError);
@@ -157,63 +171,56 @@ function startUserClient(user_id) { // user_id is user that start api bot
         return;
       }
       else {
-        console.log('Auth failed:', u);
+        myError('######UserClient updateAuthentication', u);
       }
       return;
     }
     else if (UserId
       && u['_'] == 'updateNewMessage'
+      && u.message.chat_id == UserId
       && u.message.content
       && u.message.content.text) {
       if (u.message.content.text.text) {
         UserClientRecivedText(u.message.content.text.text, u.message.chat_id);
       }
     }
-
-    // console.log('User update', u, " UserId:", UserId);
+    myError('UserClient update', u);
   })
 
   UserClient.connect()
   UserClient.login(() => ({ type: 'user' }))
 }
 function UserClientInvode(objTemp, user_id_debug) {
-
-  console.log('User invoking', objTemp);
+  myLog('#######invoke', objTemp)
   UserClient.invoke(objTemp)
     .then(o => {
-      console.log('User invoking success:', o);
+      myLog('From then:', o);
     })
     .catch(e => {
       if (e.message) {
         botSendMessage(e.message, user_id_debug);
       }
-      console.log('User invoking error:', e);
+      myError(e)
     });
 }
 function UserClientAsyncInvode(objTemp) {
   return new Promise(function (res, rej) {
     async function AsyncInvode(objTemp) {
-      console.log('User async invoking', objTemp);
-      try {
-        const result = await UserClient.invoke(objTemp);
-        res(result);
-      } catch (error) {
-
-      }
-
+      myLog('#######invoke', objTemp)
+      res(await UserClient.invoke(objTemp));
     }
     AsyncInvode(objTemp);
   })
 }
 function UserClientRecivedText(text, user_id) {
-  console.log('Receved from User:', text);
+  sommeryLogs('recived text from UserClient:', text)
   if (text.toUpperCase() == 'PING' && user_id == UserId)
     UserClientSendMessage('Pong', UserId);
 }
 
 
 function UserClientSendMessage(text, user_id) {
-  console.log('Sending from user:', text);
+  sommeryLogs('send with UserClient:', text)
   UserClient.invoke({
     _: 'sendMessage',
     chat_id: user_id,
@@ -226,13 +233,13 @@ function UserClientSendMessage(text, user_id) {
     }
   })
     .then(o => {
-      console.log('Send success:', o);
+      myLog('From then:', o);
     })
     .catch(e => {
       if (e.message) {
         botSendMessage(e.message, user_id);
       }
-      console.log('User sending error', e);
+      myError(e)
     });
 }
 // send what auth need from api bot to user
@@ -241,6 +248,7 @@ function getAuthFromUser(thisAuthState, txt, user_id) {
 }
 // proccess recived auth data from api bot
 function recivedAuthFromUser(input, user_id) {
+  console.log("Reciving auth:", input, "status:", authState[user_id], "user_id", user_id);
   var type = '';
   var dataType = '';
   switch (authState[user_id]) {
@@ -265,9 +273,9 @@ function recivedAuthFromUser(input, user_id) {
     UserClientInvode(objTemp, user_id);
   }
   else {
-    console.log('type or input or dataType is empty, type:', type);
-    console.log('input', input);
-    console.log('dataType', dataType);
-    console.log('user_id', user_id);
+    myError('type or input or dataType is empty, type:', type);
+    myError('input', input);
+    myError('dataType', dataType);
+    myError('user_id', user_id);
   }
 }
