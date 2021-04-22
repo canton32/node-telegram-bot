@@ -30,8 +30,8 @@ const tdlib = new TDLib(getBinPath())
 const BotClient = new Client(tdlib, {
   apiId: API_ID,
   apiHash: API_HASH,
-  databaseDirectory: '/tmp/api_bot/_td_database',
-  filesDirectory: '/tmp/api_bot/_td_files'
+  databaseDirectory: '/app/tddb/client/database',
+  filesDirectory: '/app/tddb/client/files'
 })
 
 var BotId;
@@ -106,8 +106,8 @@ var UserId = 0;
 const UserClient = new Client(tdlib, {
   apiId: API_ID,
   apiHash: API_HASH,
-  databaseDirectory: 'user/_td_database',
-  filesDirectory: 'user/_td_files',
+  databaseDirectory: '/app/tddb/bot/database',
+  filesDirectory: '/app/tddb/bot/files'
 })
 
 function startUserClient(user_id) { // user_id is user that start api bot
