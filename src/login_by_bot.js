@@ -7,6 +7,64 @@
 */
 
 const getBinPath = require('tdl-binary');
+const git = require('simple-git/promise');
+const fse = require('fs-extra')
+const gitClient = git();
+const repo = "https://github.com/MoonwalkInc/td-auth-db.git";
+const path = require('path')
+
+const NODE_ENV = "local";
+
+let clientDbPathPrefix = "./tddb";
+let clientDbPath;
+
+if (NODE_ENV == "development")
+  clientDbPath = `${clientDbPathPrefix}/dev`;
+else if (NODE_ENV == "production")
+  clientDbPath = `${clientDbPathPrefix}/prod`;
+else if (NODE_ENV == "staging")
+  clientDbPath = `${clientDbPathPrefix}/staging`;
+else
+  clientDbPath = "user";
+
+async function pullAuthDB() {
+  try {
+    await fse.rmdir(clientDbPathPrefix, { recursive: true });
+
+    console.log("Deleing finished.");
+
+    await gitClient.clone(repo, clientDbPathPrefix);
+
+    console.log("Pulling git finished.");
+  } catch (error) {
+    console.log("Pulling error:", error);
+  }
+}
+
+async function pushAuthDB() {
+  try {
+
+    await gitClient.commit("New version");
+    await gitClient.push();
+
+    console.log("Pushing finished");
+
+  } catch (error) {
+    console.log("Pusing error:", error);
+  }
+}
+
+// pullAuthDB();
+// fse.copySync("my-clone/dev/db", "user/db", { recursive: true, overwrite: true }, function (err) {
+//   if (err) {
+//     console.error(err);
+//   } else {
+//     console.log("Copying success!");
+//   }
+// });
+
+
+
 /*
 * TDLib (Telegram Database library) authentication example
 * with Node.js by [tdl](https://github.com/Bannerets/tdl) pakage.
@@ -51,14 +109,16 @@ const API_BOT_AUTH = {
 }
 
 const tdlib = new TDLib(getBinPath())
-
 // BotClient:
 const BotClient = new Client(tdlib, {
   apiId: API_ID,
   apiHash: API_HASH,
-  databaseDirectory: 'api_bot/_td_database',
-  filesDirectory: 'api_bot/_td_files'
+  databaseDirectory: "bot/db",
+  filesDirectory: "bot/files",
+  // databaseDirectory: path.join(path.resolve(__dirname), clientDbPath, "/db"),
+  // filesDirectory: path.join(path.resolve(__dirname), clientDbPath, "/files"),
 })
+
 var BotId;
 BotClient.connect()
 BotClient.login(() => API_BOT_AUTH)
@@ -120,11 +180,16 @@ function botSendMessage(text, user_id) {
 // UserClient:
 var UserClientstarted = false;
 var UserId = 0;
+
+console.log("====== client db path:", path.join(path.resolve(__dirname), clientDbPathPrefix, clientDbPath, "/db"));
+
 const UserClient = new Client(tdlib, {
   apiId: API_ID,
   apiHash: API_HASH,
-  databaseDirectory: 'user/_td_database',
-  filesDirectory: 'user/_td_files',
+  // databaseDirectory: clientDbPathPrefix,
+  // filesDirectory: 'user/files',
+  databaseDirectory: path.join(path.resolve(__dirname), clientDbPathPrefix, clientDbPath, "/db"),
+  filesDirectory: path.join(path.resolve(__dirname), clientDbPathPrefix, clientDbPath, "/files"),
 })
 function startUserClient(user_id) { // user_id is user that start api bot
   sommeryLogs('UserClient start');
@@ -160,6 +225,8 @@ function startUserClient(user_id) { // user_id is user that start api bot
         var objTemp = {
           '_': 'getMe'
         };
+
+        pushAuthDB();
 
         UserClientAsyncInvode(objTemp)
           .then(result => {
