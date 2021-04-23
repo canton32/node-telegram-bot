@@ -113,11 +113,14 @@ const tdlib = new TDLib(getBinPath())
 const BotClient = new Client(tdlib, {
   apiId: API_ID,
   apiHash: API_HASH,
-  databaseDirectory: "bot/db",
-  filesDirectory: "bot/files",
-  // databaseDirectory: path.join(path.resolve(__dirname), clientDbPath, "/db"),
-  // filesDirectory: path.join(path.resolve(__dirname), clientDbPath, "/files"),
+  // databaseDirectory: "bot/db",
+  // filesDirectory: "bot/files",
+  databaseDirectory: path.join(path.resolve(__dirname), clientDbPath, "bot/db"),
+  filesDirectory: path.join(path.resolve(__dirname), clientDbPath, "bot/files"),
 })
+
+
+console.log("=======bot path:", path.join(path.resolve(__dirname), clientDbPath, "bot/db"));
 
 var BotId;
 BotClient.connect()
